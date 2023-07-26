@@ -6,26 +6,17 @@ class CalcMultiSubNet{
         this.network = network.split(".")
         this.hosts = hosts.sort((a, b) =>  b - a);
         this.networks = hosts.map(host => new CalcHost(this.network.join("."),host))
+        this.copiaNetwork = this.network.slice()
         
     }
 
 
-    putSumandos(){
-        let sumado = 0
-        let sumandos = []
-        for (let resul of this.networks){
-            
-            sumado += resul.salto
-            sumandos.push(sumado)
-        }
-        return sumandos
-    }
     getRangos(){
         let rangos = []
-        let sumandos = this.putSumandos()
+
         for (let network=0; network < this.networks.length; network++){
             
-            rangos.push( this.rango_especifico(this.networks[network].octetoAfectado, this.networks[network].salto, sumandos[network]) )
+            rangos.push( this.rango_especifico(this.networks[network].octetoAfectado, this.networks[network].salto) )
             rangos[network].mascara = this.networks[network].mascara
             rangos[network].hostRequeridos = this.hosts[network]
             rangos[network].host = this.networks[network].host
@@ -33,9 +24,9 @@ class CalcMultiSubNet{
         }
         return rangos
     }
-    rango_especifico(octetoAfectado, salto, sumado){
-        let copiaNetwork = this.network.slice()
-        let rangoInferior = (parseInt(copiaNetwork[octetoAfectado-1]) - salto + sumado) +""
+    rango_especifico(octetoAfectado, salto){
+        
+        let rangoInferior = (parseInt(this.copiaNetwork[octetoAfectado-1]) ) +""
         
         let rangoInferiorList = []
         for (let i=0; i<4; i++){
@@ -43,7 +34,7 @@ class CalcMultiSubNet{
                 rangoInferiorList.push(rangoInferior)
             }
             else if (i < (octetoAfectado-1)){
-                rangoInferiorList.push(copiaNetwork[i])
+                rangoInferiorList.push(this.copiaNetwork[i])
             }
             else if (i > (octetoAfectado-1)){
                 rangoInferiorList.push("0")
@@ -51,20 +42,27 @@ class CalcMultiSubNet{
         }
         
 
-        
-        let rangoSuperior = (parseInt(copiaNetwork[octetoAfectado-1]) + sumado-1) + ""
+
+        let rangoSuperior = (parseInt(this.copiaNetwork[octetoAfectado-1]) + salto -1 ) + ""
         let rangoSuperiorList = []
         for (let i=0; i<4; i++){
             if(i === (octetoAfectado-1) ){
                 rangoSuperiorList.push(rangoSuperior)
             }
             else if (i < (octetoAfectado-1)){
-                rangoSuperiorList.push(copiaNetwork[i])
+                rangoSuperiorList.push(this.copiaNetwork[i])
             }
             else if (i > (octetoAfectado-1)){
                 rangoSuperiorList.push("255")
             }
         }
+        
+        let newRangoIngerior = rangoInferiorList.slice()
+        newRangoIngerior[octetoAfectado-1] = (parseInt(rangoInferiorList[octetoAfectado-1]) + salto).toString()
+        this.copiaNetwork = newRangoIngerior
+        console.log(`${rangoInferiorList} -----  ${rangoSuperiorList}`);
+
+
         return {
 
             inicio: rangoInferiorList.join("."), 
@@ -75,7 +73,4 @@ class CalcMultiSubNet{
 
 }
 module.exports = CalcMultiSubNet
-// let resul = new CalcMultiSubNet("172.16.0.0",[1000, 800, 3000, 10000])
-// let resul = new CalcMultiSubNet("10.0.0.0",500)
-// console.log(resul);
-// console.log(resul.getRangos());
+

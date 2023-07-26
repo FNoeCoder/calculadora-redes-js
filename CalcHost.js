@@ -33,8 +33,8 @@ class CalcHost{
         return this.bits0
     }
     setOctetoAfectado(){
-        for (let octeto=1; octeto<=4;octeto++){
-            if ( this.bits[octeto-1].includes("0") ){
+        for (let octeto=4; octeto>=1;octeto--){
+            if ( this.bits[octeto-1].includes("1")){
                 return octeto
             }
         }

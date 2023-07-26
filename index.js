@@ -42,5 +42,8 @@ function CalcNet(red,Object){
         console.log( resul.getNewNetworkBinary() );
     }
 }
-CalcNet("150.10.0.0",{ multisubnet: [15000,8000,5000,2400,600] })
-CalcNet("192.168.1.0",{ host: 2 })
+CalcNet("10.10.10.0",{ multisubnet: [700,200,500,500,50,100,320,800,1100, 1050] })
+// CalcNet("192.168.0.0",{ host: 2 })
+// CalcNet("10.10.40.0",{ multisubnet: [200, 100, 50] })
+// CalcNet("150.10.0.0",{ multisubnet: [15000,8000,5000,2400,600] })
+// CalcNet("192.168.1.0",{ host: 2 })
