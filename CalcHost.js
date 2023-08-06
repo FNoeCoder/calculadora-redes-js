@@ -88,7 +88,3 @@ class CalcHost{
 
 module.exports = CalcHost
 
-// let resul = new CalcHost("172.16.0.0",3000)
-// let resul = new CalcHost("10.0.0.0",500)
-// console.log(resul);
-// console.log(resul.getRangos());
