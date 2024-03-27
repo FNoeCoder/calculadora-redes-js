@@ -22,6 +22,12 @@ class ErrorSubredesFueraRango extends Error{
         this.name = "ErrorSubredesFueraRango";
     }
 }
+class ErrorExesoSubredes extends Error{
+    constructor(mensaje){
+        super(mensaje);
+        this.name = "ErrorExesoSubredes";
+    }
+}
 
 
 
@@ -29,3 +35,4 @@ module.exports.ErrorNoNetwork = ErrorNoNetwork
 module.exports.ErrorNoHostOSubredes = ErrorNoHostOSubredes
 module.exports.ErrorHostFueraRango = ErrorHostFueraRango
 module.exports.ErrorSubredesFueraRango = ErrorSubredesFueraRango
+module.exports.ErrorExesoSubredes = ErrorExesoSubredes

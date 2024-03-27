@@ -4,8 +4,8 @@ class RedMultiSubneteada{
     constructor(red, hostRequeridos){
         this.red = red.split(".")
         this.hostRequeridos = hostRequeridos.sort((a, b) =>  b - a);
-        this.redesSubneteadas = hostRequeridos.map(hostRequedido => new RedSubneteada(red,hostRequedido))
-        this.red[this.redesSubneteadas[0].octetoAfectado] = "0"
+        this.redesSubneteadas = hostRequeridos.map(hostRequedido => new RedSubneteada(red,{host: hostRequedido}))
+        // this.red[this.redesSubneteadas[0].octetoAfectado] = "0"
         this.redCopia = this.red.slice()
     }
 
@@ -15,7 +15,7 @@ class RedMultiSubneteada{
 
         for (let red=0; red < CANTIDAD_REDES; red++){
             let informacionRed = {}
-            let rangosRed = this.ObtenerRangoEspecifico(this.redesSubneteadas[red].octetoAfectado, this.redesSubneteadas[red].salto) 
+            let rangosRed = this.ObtenerRangoEspecifico(this.redesSubneteadas[red].octetoAfectado, this.redesSubneteadas[red].salto, red) 
             let redBinaria = rangosRed.inicio.split(".").map(octeto => {
                 let binario = parseInt(octeto).toString(2)
 
@@ -24,6 +24,9 @@ class RedMultiSubneteada{
 
             informacionRed.inicio = rangosRed.inicio
             informacionRed.final = rangosRed.final
+            informacionRed.salto = this.redesSubneteadas[red].salto
+            informacionRed.bits0 = this.redesSubneteadas[red].cantidadBits0
+            informacionRed.bits1 = this.redesSubneteadas[red].cantidadBits1
             informacionRed.redBinaria = redBinaria.join(".")
             informacionRed.notacionCIDR = `${rangosRed.inicio}/${this.redesSubneteadas[red].cantidadBits1}`
             informacionRed.hostRequeridos = this.redesSubneteadas[red].hostRequeridos
@@ -35,14 +38,19 @@ class RedMultiSubneteada{
         }
         return rangos
     }
-    ObtenerRangoEspecifico(octetoAfectado, salto){
+    ObtenerRangoEspecifico(octetoAfectado, salto, numeroRed){
+        // if (numeroRed === 0 && this.redCopia[octetoAfectado] !== "0" ){
+            
+        // }
         let listaRangoInferior = this.redCopia.map((octetoActual, octetoActualIndex) => {
+
             
             if (octetoAfectado === octetoActualIndex) {
                 octetoActual = parseInt(octetoActual)
-            }else if (this.octetoAfectado < octetoActualIndex){
+            }else if (octetoAfectado < octetoActualIndex){
                 octetoActual = "0"
             }
+            // else if (salto > this.red[octetoAfectado])
             return octetoActual
         })
 
@@ -71,7 +79,8 @@ class RedMultiSubneteada{
     }
 }
 
-// let resul = new RedMultiSubneteada("10.10.10.0", [700,200,500,500,50,100,320,800,1100,1050])
+let resul = new RedMultiSubneteada("10.10.10.0", [700,200,500,500,50,100,320,800,1100,1050])
 // let resul = new RedMultiSubneteada("172.168.1.0", [16000, 500, 200, 200, 200])
-// console.log(resul);
-// console.log(resul.ObtenerRangos());
+// let resul = new RedMultiSubneteada("10.10.10.0", [16384, 8192, 8]) //
+console.log(resul); //
+console.log(resul.ObtenerRangos()); //

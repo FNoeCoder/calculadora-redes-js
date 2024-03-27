@@ -2,6 +2,7 @@ const Red = require("./Red.js");
 const ErrorNoHostOSubredes = require("./Errores.js").ErrorNoHostOSubredes
 const ErrorHostFueraRango = require("./Errores.js").ErrorHostFueraRango
 const ErrorSubredesFueraRango = require("./Errores.js").ErrorSubredesFueraRango
+const ErrorExesoSubredes = require("./Errores.js").ErrorExesoSubredes
 
 
 class RedSubneteada extends Red{
@@ -29,7 +30,7 @@ class RedSubneteada extends Red{
             this.subredesRequeridas = hostOSubredes.subredes
             this.cantidadSubredes = 2**this.calcularBitsRedSubred();
 
-            this.salto  = 256/this.cantidadSubredes;
+            this.salto  = 256 - parseInt( this.mascara[this.octetoAfectado] )
             this.cantidadBits0 = this.cantidadBits0 - this.calcularBitsRedSubred();
             this.cantidadBits1 = 32 - this.cantidadBits0;
 
@@ -50,12 +51,12 @@ class RedSubneteada extends Red{
         throw new ErrorHostFueraRango(`Host fuera de rango. Host maximos: ${this.host}`)
     }
     calcularBitsRedSubred(){
-        for (let exponente = 2; exponente<=this.cantidadBits0; exponente++){
+        for (let exponente = 1; exponente<=8; exponente++){
             if (this.subredesRequeridas > 2**(exponente-1) && this.subredesRequeridas <= 2**exponente){
                 return exponente
             }
         }
-        throw new ErrorSubredesFueraRango(`Subredes fuera de rango. Subredes maximas: ${this.cantidadSubredes}`)
+        throw new ErrorExesoSubredes(`Las cantidad de ${this.subredesRequeridas} es demaciada. Subredes maximas: ${this.cantidadSubredes}`)
     }
     obtenerRangos(){
         let rangos = [];
@@ -95,6 +96,7 @@ class RedSubneteada extends Red{
             }
         }    
         return{
+            indice: cantidadSubredes+1,
             inicio: rangoInferiorList.join("."), 
             final: rangoSuperiorList.join(".")
         }
@@ -105,8 +107,13 @@ module.exports = RedSubneteada;
 
 
 // let resul = new RedSubneteada("10.168.1.0", {host : 16000})
+// let resul = new RedSubneteada("10.0.0.0", {subredes: 200}) 
 // let resul = new RedSubneteada("200.168.1.0", {host : 5})
-let resul = new RedSubneteada("172.168.1.0", {subredes: 5})
+// let resul = new RedSubneteada("172.168.1.0", {subredes: 5})
 
-console.log(resul);
-console.log(resul.obtenerRangos());
+// console.log(resul);
+// resul.obtenerRangos().forEach((fila)=>{
+    // console.log(fila);
+// })
+
+// console.log(resul.obtenerRangos());
