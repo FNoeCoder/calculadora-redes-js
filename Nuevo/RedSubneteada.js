@@ -14,12 +14,12 @@ export class RedSubneteada{
     // octeto afectado
     #octetoAfectado = 0;
     // host
-    #hostRequeridos = 0;
+    #hostRequeridos = -1;
     #hostDisponibles = 0;
     
     // subredes
     #subredesDisponibles = 0;
-    #subredesRequeridas = 0;
+    #subredesRequeridas = -1;
     #saltoDeSubredes = 0;
     // cantidad de bits
     #cantidadBits1 = 0;
@@ -71,7 +71,10 @@ export class RedSubneteada{
     }
     #ifSubredesRequeridas(){
         // TODO: Falta esto de completar
+        this.#Calcularbits0y1();
+        this.#calcularMascaraSubneteada();  
         this.#calcularHostDisponibles();
+        this.#calcularSubredesDisponibles();
         this.#calcularSaltoDeSubredes();
         this.getTodasLasSubredes();
 
@@ -80,23 +83,38 @@ export class RedSubneteada{
     #ifHostRequeridos(){
         this.#Calcularbits0y1();
         this.#calcularMascaraSubneteada();
-        this.#calcularOctetoAfectado();
+        // this.#calcularOctetoAfectado();
         this.#calcularSubredesDisponibles();
         this.#calcularHostDisponibles();
         this.#calcularSaltoDeSubredes();
         this.getTodasLasSubredes();
     }
     #Calcularbits0y1(){
-        let cantidadHost = this.#hostRequeridos + 2;
-        for (let bit = 1; bit < this.#cantidadBits0-1; bit++){
-            // console.log(`${cantidadHost} > ${2**bit} && ${cantidadHost} <= ${2**(bit + 1)}`);
-            if (cantidadHost > 2**bit && cantidadHost <= 2**(bit + 1)){
+        if (this.#hostRequeridos > 0){
+            let cantidadHost = this.#hostRequeridos + 2;
+            for (let bit = 1; bit < this.#cantidadBits0-1; bit++){
+                // console.log(`${cantidadHost} > ${2**bit} && ${cantidadHost} <= ${2**(bit + 1)}`);
+                if (cantidadHost > 2**bit && cantidadHost <= 2**(bit + 1)){
 
-                this.#cantidadBits0 = bit+1;
-                this.#cantidadBits1 = 32 - this.#cantidadBits0;
-                this.#bitsTomadosParaSubredes = this.#cantidadBits1 % 8;
-                break;
+                    this.#cantidadBits0 = bit+1;
+                    this.#cantidadBits1 = 32 - this.#cantidadBits0;
+                    this.#bitsTomadosParaSubredes = this.#cantidadBits1 % 8;
+                    break;
+                }
             }
+            if (this.#cantidadBits0 === 0) throw new Error(`No se puede hacer la subneteada con ${this.#hostRequeridos} host requeridos.`);
+        }
+        else if (this.#subredesRequeridas > 0){
+            let cantidadSubredes = this.#subredesRequeridas;
+            for (let bit = 1; bit < this.#cantidadBits0-1; bit++){
+                if (cantidadSubredes > 2**bit && cantidadSubredes <= 2**(bit + 1)){
+                    this.#bitsTomadosParaSubredes = bit+1;
+                    this.#cantidadBits1 += this.#bitsTomadosParaSubredes;
+                    this.#cantidadBits0 = 32 - this.#cantidadBits1;
+                    break;
+                }
+            }
+            if (this.#cantidadBits0 === 0) throw new Error(`No se puede hacer la subneteada con ${this.#subredesRequeridas} subredes requeridas.`);
         }
 
     }
@@ -146,6 +164,7 @@ export class RedSubneteada{
                 limineInferior: this.#sumarASubred(1, redBase),
                 limineSuperior: this.#sumarASubred(this.#saltoDeSubredes-2, redBase),
                 broadcast: this.#sumarASubred(this.#saltoDeSubredes-1, redBase),
+                n: 1
             }
         ];
         for (let subredesTotales = 1; subredesTotales < this.#subredesDisponibles; subredesTotales++){
@@ -162,12 +181,14 @@ export class RedSubneteada{
                 broadcast: nuevoBroadcast,
                 limineInferior: nuevoRango.limineInferior,
                 limineSuperior: nuevoRango.limineSuperior,
+                n: subredesTotales+1
             })
         }
         for (let subred of subredes){
-            console.log(`Red: ${subred.red.join(".")}  Limite Inferior: ${subred.limineInferior.join(".")}  Limite Superior: ${subred.limineSuperior.join(".")}  Broadcast: ${subred.broadcast.join(".")}`);
+            console.log(`${subred.n}:    Red: ${subred.red.join(".")}  Limite Inferior: ${subred.limineInferior.join(".")}  Limite Superior: ${subred.limineSuperior.join(".")}  Broadcast: ${subred.broadcast.join(".")}`);
         }
         console.log(this.#saltoDeSubredes);
+        console.log(this.#sumarASubred(16384, [10,0,255,254]));
         return subredes;
     }
 
@@ -178,13 +199,19 @@ export class RedSubneteada{
             if (cantidad <= 0){
                 break;
             }
-            else if (cantidad > 255){
+            else if (cantidad + red[octeto] === 256){
+                red[octeto] = 0;
+                red[octeto - 1] +=1;
+                cantidad = 0;
+            }
+            //? Se va a arreglar un nuevo if y talvez una función recursiva, pero antes hacer un guardado
+            else if (cantidad > 255 || cantidad + red[octeto] > 256){ //  red[octeto] > 255 ||
                 let cantidadDe255 = Math.floor(cantidad / 256);
                 let resto = cantidad % 256;
                 red[octeto] += resto;
                 cantidad = cantidadDe255;
             }
-            else if (cantidad > 0 && cantidad <= 255){
+            else if (cantidad + red[octeto] <= 255){
                 red[octeto] += cantidad;
                 break;
             }

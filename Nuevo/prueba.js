@@ -8,13 +8,13 @@ import { Red } from "./Red.js";
 
 
 let iPsPrueba = [
-    {ip: "10.10.0.0", subredesRequeridas: 1000, hostRequeridos: 25},
+    {ip: "10.10.0.0", subredesRequeridas: 1_000, hostRequeridos: 25},
     {ip: "192.168.0.0", subredesRequeridas: 3, hostRequeridos: 25},
-    {ip: "172.16.0.0", subredesRequeridas: 4, hostRequeridos: 25}
+    // {ip: "172.16.0.0", subredesRequeridas: 4, hostRequeridos: 25}
 ]
 
 for (let datos of iPsPrueba){
-    let red = new RedSubneteada(datos.ip, {hostRequeridos: datos.hostRequeridos});
+    let red = new RedSubneteada(datos.ip, {subredesRequeridas: datos.subredesRequeridas});
     let todo = red.getAll();
     // console.log(todo);
 //     let Subredes = red.getTodasLasSubredes();
